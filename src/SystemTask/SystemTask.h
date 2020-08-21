@@ -52,7 +52,6 @@ namespace Pinetime {
         std::unique_ptr<Pinetime::Applications::DisplayApp> displayApp;
         Pinetime::Controllers::Ble& bleController;
         Pinetime::Controllers::VibrationMotorController &vibrationmotor;
-        Pinetime::Controllers::AlarmController &alarmController;
         Pinetime::Controllers::DateTime& dateTimeController;
         QueueHandle_t systemTaksMsgQueue;
         bool isSleeping = false;

@@ -32,10 +32,10 @@ namespace Pinetime {
       public:
         enum class States {Idle, Running};
         enum class Messages : uint8_t {GoToSleep, GoToRunning, UpdateDateTime, UpdateBleConnection, UpdateBatteryLevel, TouchEvent, SwitchScreen,ButtonPushed,
-            NewNotification, AlarmGoOff, BleFirmwareUpdateStarted, BleFirmwareUpdateFinished
+            NewNotification, AlarmGoOff, CreateAlarmFailed, BleFirmwareUpdateStarted, BleFirmwareUpdateFinished
         };
         enum class FullRefreshDirections { None, Up, Down };
-
+	      enum class TouchModes { Gestures, Polling };
 
         DisplayApp(Drivers::St7789 &lcd, Components::LittleVgl &lvgl, Drivers::Cst816S &,
                    Controllers::Battery &batteryController, Controllers::Ble &bleController,
@@ -49,6 +49,7 @@ namespace Pinetime {
         void StartApp(Apps app);
 
         void SetFullRefresh(FullRefreshDirections direction);
+        void SetTouchMode(TouchModes mode);
       private:
         TaskHandle_t taskHandle;
         static void Process(void* instance);
@@ -87,6 +88,8 @@ namespace Pinetime {
         std::unique_ptr<Screens::Modal> modal;
         std::unique_ptr<Screens::AlarmModal> alarmmodal;
         Pinetime::Controllers::NotificationManager& notificationManager;
+
+        TouchModes touchMode = TouchModes::Gestures;
     };
   }
 }

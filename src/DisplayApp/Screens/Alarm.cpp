@@ -75,10 +75,11 @@ Alarm::Alarm(Pinetime::Applications::DisplayApp* app,
 
 
     dd = lv_ddlist_create(lv_scr_act(), NULL);
-    lv_obj_set_width(dd, LV_DPI * 2);
+    lv_obj_set_width(dd, 200);
     lv_obj_set_height(dd, 50);
     lv_ddlist_set_options(dd, "January\nFebruary\nMarch\nApril\nMay\nJune\nJuly\nAugust\nSeptember\nOctober\nNovember\nDecember");
     lv_ddlist_set_fix_height(dd, 135);
+    lv_ddlist_set_fix_width(dd, 150);
     lv_obj_align(dd, NULL, LV_ALIGN_IN_TOP_MID, 0, 25);
     
     
@@ -222,7 +223,13 @@ void Alarm::nextDDList(){
             }
 
             NRF_LOG_INFO("%d", diff_mins);
-            alarmController.setxTimer(diff_mins);
+            if(alarmController.setxTimer(diff_mins)){
+                app->StartApp(DisplayApp::Apps::Launcher);
+                running = false;
+            }
+            else{
+                app->PushMessage(Pinetime::Applications::DisplayApp::Messages::CreateAlarmFailed);
+            }
 
         }
 
@@ -233,14 +240,35 @@ void Alarm::nextDDList(){
 
 
 Alarm::~Alarm() {
+  app->SetTouchMode(DisplayApp::TouchModes::Gestures);
   lv_obj_clean(lv_scr_act());
 }
 
 bool Alarm::Refresh() {
+  auto* list = static_cast<lv_ddlist_ext_t *>(dd->ext_attr);
+
+  // Switch touchmode to Polling if the dropdown is opened. This will allow to scroll inside the
+  // dropdown while it is opened.
+  // Disable the polling mode when the dropdown is closed to be able to handle the gestures.
+  if(list->opened)
+    app->SetTouchMode(DisplayApp::TouchModes::Polling);
+  else
+    app->SetTouchMode(DisplayApp::TouchModes::Gestures);
   return running;
 }
 
 bool Alarm::OnButtonPushed() {
   running = false;
   return true;
+}
+
+bool Alarm::OnTouchEvent(Pinetime::Applications::TouchEvents event) {
+  // If the dropdown is opened, notify Display app that it doesn't need to handle the event
+  // (this will prevent displayApp from going back to the menu or clock scree).
+  auto* list = static_cast<lv_ddlist_ext_t *>(dd->ext_attr);
+  if(list->opened) {
+    return true;
+  } else {
+    return false;
+  }
 }

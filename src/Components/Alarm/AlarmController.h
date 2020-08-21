@@ -5,13 +5,16 @@
 #include <timers.h>
 
 namespace Pinetime {
+  namespace System{
+    class SystemTask;
+  }
   namespace Controllers {
     class AlarmController {
       public:
 
         AlarmController(Pinetime::System::SystemTask& systemTask, Pinetime::Controllers::VibrationMotorController& vibrationmotor);
 
-        void setxTimer(int diff);
+        bool setxTimer(int diff);
         void alarmCallback();
 
       private:

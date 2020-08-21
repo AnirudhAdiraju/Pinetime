@@ -17,10 +17,17 @@ AlarmController::AlarmController(Pinetime::System::SystemTask& systemTask,
 
 }
 
-void AlarmController::setxTimer(int diff) {
+bool AlarmController::setxTimer(int diff) {
     alarmTimer = xTimerCreate ("alarmTimer", pdMS_TO_TICKS(diff*60*1000), pdFALSE, this, xtimerCallback);
-    xTimerStart(alarmTimer, 0);
-    NRF_LOG_INFO("alarm started");
+    if(alarmTimer != NULL){
+        xTimerStart(alarmTimer, 0);
+        NRF_LOG_INFO("alarm started");
+        return true;
+    }
+    else{
+        return false;
+    }
+
 }
 
 void AlarmController::alarmCallback() {
